@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { auth, db, createUserWithEmailAndPassword, sendEmailVerification, collection, addDoc } from "../Utils/firebase";
+import { auth, createUserWithEmailAndPassword, sendEmailVerification } from "../Utils/firebase";
 
 const SignUpScreen = ({ navigation }) => {
     const [fullName, setFullName] = useState('');
@@ -25,22 +25,12 @@ const SignUpScreen = ({ navigation }) => {
 
                 if (userCredential.user) {
                     await sendEmailVerification(userCredential.user);
-                    Alert.alert('Success', 'Verification email sent. Please check your inbox.');
-                    navigation.navigate('DTRACK');
+                    navigation.navigate('verification');
                 }
             } catch (error) {
                 console.error('Error sending verification email:', error);
                 Alert.alert('Error', 'There was an error sending the verification email.');
             }
-            const usersRef = collection(db, 'users');
-            await addDoc(usersRef, {
-                fullName,
-                email,
-            });
-
-
-            Alert.alert('Success', 'Account created successfully.');
-            navigation.navigate('DTRACK')
         } catch (error) {
             Alert.alert('Error', error.message);
         }

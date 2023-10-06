@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import GetStartedScreen from './Screens/Started';
 import SignUpScreen from './Screens/Signup';
+import VerificationPendingScreen from './Screens/VerficationPendingScreen';
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,7 @@ export default function App() {
           headerTintColor: 'white', // Text color of the header
         }} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <Stack.Screen name="verification" component={VerificationPendingScreen} />
       </Stack.Navigator>
 
     </NavigationContainer>
