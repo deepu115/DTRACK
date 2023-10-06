@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { sendEmailVerification, auth } from '../Utils/firebase';
 
-const VerificationPendingScreen = () => {
+const VerificationPendingScreen = ({ navigation }) => {
     const handleResendEmail = async () => {
         try {
             const user = auth.currentUser;

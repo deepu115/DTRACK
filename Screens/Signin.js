@@ -1,40 +1,29 @@
+
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { auth, createUserWithEmailAndPassword, sendEmailVerification, db, collection, addDoc } from "../Utils/firebase";
+import { auth, signInWithEmailAndPassword } from "../Utils/firebase";
 
-const SignUpScreen = ({ navigation }) => {
-    const [fullName, setFullName] = useState('');
+const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleSignUp = async () => {
+    const handleLogin = async () => {
         try {
-            if (!email || !password || !confirmPassword || !fullName) {
-                Alert.alert('Error', 'All fields are required.');
+            if (!email || !password) {
+                Alert.alert('Error', 'Both email and password are required.');
                 return;
             }
 
-            if (password !== confirmPassword) {
-                Alert.alert('Error', 'Passwords do not match.');
-                return;
-            }
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
-                if (userCredential.user) {
-                    await sendEmailVerification(userCredential.user);
-                    const usersRef = collection(db, 'users');
-                    await addDoc(usersRef, {
-                        fullName,
-                        email,
-                    });
+            if (userCredential.user) {
+                if (userCredential.user.emailVerified) {
+                    // Email is verified, navigate to the homepage
+                    navigation.navigate('DTRACK');
+                } else {
+                    // Email is not verified, navigate to the verification screen
                     navigation.navigate('verification');
                 }
-            } catch (error) {
-                console.error('Error sending verification email:', error);
-                Alert.alert('Error', 'There was an error sending the verification email.');
             }
         } catch (error) {
             Alert.alert('Error', error.message);
@@ -44,13 +33,7 @@ const SignUpScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.form}>
-                <Text style={styles.title}>Sign Up</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Full Name"
-                    onChangeText={(text) => setFullName(text)}
-                    autoCapitalize="words"
-                />
+                <Text style={styles.title}>Login</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Email"
@@ -64,17 +47,11 @@ const SignUpScreen = ({ navigation }) => {
                     onChangeText={(text) => setPassword(text)}
                     secureTextEntry={true}
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Confirm Password"
-                    onChangeText={(text) => setConfirmPassword(text)}
-                    secureTextEntry={true}
-                />
-                <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
-                    <Text style={styles.buttonText}>SignUp</Text>
+                <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                    <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-                    <Text style={styles.signInLink}>Already have an account? Sign In</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+                    <Text style={styles.signUpLink}>Don't have an account? Sign Up</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -105,7 +82,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    signupButton: {
+    loginButton: {
         backgroundColor: '#5c5de5',
         borderRadius: 10,
         paddingVertical: 10,
@@ -117,7 +94,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         textAlign: 'center',
     },
-    signInLink: {
+    signUpLink: {
         marginTop: 20,
         color: '#5c5de5',
         textDecorationLine: 'underline',
@@ -132,4 +109,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default SignUpScreen;
+export default LoginScreen;
