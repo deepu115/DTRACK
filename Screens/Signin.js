@@ -1,11 +1,41 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { auth, signInWithEmailAndPassword } from "../Utils/firebase";
+import { auth, signInWithEmailAndPassword, collection, query, where, getDocs, db } from "../Utils/firebase";
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user && user.emailVerified) {
+
+                fetchUserProfile(user.uid);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const fetchUserProfile = async (uid) => {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where("uid", "==", uid));
+
+        try {
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                const userDoc = querySnapshot.docs[0];
+                const fullName = userDoc.data().fullName;
+                navigation.navigate('Home', { fullName });
+            } else {
+                // Handle the case where the user's profile is not found in Firestore
+                console.error('User profile not found in Firestore.');
+            }
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+        }
+    };
 
     const handleLogin = async () => {
         try {
@@ -18,11 +48,9 @@ const LoginScreen = ({ navigation }) => {
 
             if (userCredential.user) {
                 if (userCredential.user.emailVerified) {
-                    // Email is verified, navigate to the homepage
-                    navigation.navigate('DTRACK');
+                    fetchUserProfile(userCredential.user.uid);
                 } else {
-                    // Email is not verified, navigate to the verification screen
-                    navigation.navigate('verification');
+                    navigation.navigate('VerificationPending');
                 }
             }
         } catch (error) {

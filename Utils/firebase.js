@@ -1,6 +1,6 @@
 import { getAuth, getReactNativePersistence, createUserWithEmailAndPassword, sendEmailVerification, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 import Constants from 'expo-constants';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from 'firebase/app';
 
@@ -26,4 +26,4 @@ if (!app) {
     });
 }
 
-export { auth, db, createUserWithEmailAndPassword, sendEmailVerification, collection, addDoc, onAuthStateChanged, signInWithEmailAndPassword };
+export { auth, db, createUserWithEmailAndPassword, sendEmailVerification, collection, addDoc, onAuthStateChanged, signInWithEmailAndPassword, getDocs, query, where };
